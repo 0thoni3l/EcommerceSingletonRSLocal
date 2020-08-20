@@ -1,0 +1,111 @@
+package com.coppel.singletonrslocal.txmanager;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import org.apache.commons.dbcp2.BasicDataSource;
+
+import com.coppel.singletonrslocal.dto.BasicDataSourceConfig;
+import com.coppel.singletonrslocal.enums.EnumGlobal;
+
+public class TxManagerConexion9 {
+	protected TxManagerConexion9(){ }
+	private static ThreadLocal<Connection> myContextThreadLocal= new ThreadLocal<>();
+	
+	private static BasicDataSource ds = new BasicDataSource();
+
+	public static void init(BasicDataSourceConfig hBasicDataSourceConfig) {
+			ds.setDriverClassName(hBasicDataSourceConfig.getClassNameDriver());
+			ds.setUrl(hBasicDataSourceConfig.getUrlDriver());
+			ds.setUsername(hBasicDataSourceConfig.getUsernameDB());
+			ds.setPassword(hBasicDataSourceConfig.getPasswordDB());
+			ds.setDefaultQueryTimeout(Integer.valueOf(hBasicDataSourceConfig.getDefaultQueryTimeOut()));
+			ds.setMinIdle(Integer.valueOf(hBasicDataSourceConfig.getMinIdle()));
+			ds.setMaxIdle(Integer.valueOf(hBasicDataSourceConfig.getMaxIdle()));
+			ds.setMaxOpenPreparedStatements(Integer.valueOf(hBasicDataSourceConfig.getMaxOpenPreparedStatements()));	
+			ds.setMaxTotal(Integer.valueOf(hBasicDataSourceConfig.getMaxTotal()));
+	}
+
+	public static void close()  throws Exception{
+		try {
+			ds.close();
+		} catch (Exception ex) {
+			throw new Exception(EnumGlobal.ERROR_DS_CLOSE.getAction() + ex);
+		}
+	}
+
+	public static Connection beginTx() throws Exception {
+		Connection conn = null;
+		try {
+				conn = ds.getConnection();
+				conn.setAutoCommit(false);
+				conn.setReadOnly(false);
+				myContextThreadLocal.set(conn);
+			
+		} catch (Exception ex) {
+			throw new Exception(EnumGlobal.ERROR_INICIAR_TRANSACCION.getAction() + ex);
+		}
+		return conn;
+	}
+
+	public static Connection beginQuery() throws Exception{
+		Connection conn = null;
+		try {
+				conn = beginTx();			
+				conn.setReadOnly(true);
+				myContextThreadLocal.set(conn);
+		} catch (Exception ex) {
+			throw new Exception(EnumGlobal.ERROR_DS_CONEXION_READONLY.getAction() + ex);
+		}
+		return conn;
+	}
+
+	public static Connection getConnection() throws Exception {
+		Connection conn;
+		try{
+			conn = myContextThreadLocal.get();
+		if (conn == null) {
+			throw new Exception(EnumGlobal.ERROR_DS_CONECTION.getAction());
+			}
+		}catch(Exception ex){
+			throw new Exception(EnumGlobal.ERROR_DS_CONECTION.getAction()+ex);
+		}
+		return conn;
+	}
+
+	public static void commit() throws Exception {
+		Connection conn = null;
+		try {
+			conn = getConnection();
+			conn.commit();
+		} catch (Exception ex) {
+			throw new Exception(EnumGlobal.ERROR_DS_COMMIT.getAction()+ex);
+		} finally {
+			closeConnection(conn);
+		}
+	}
+
+	public static void rollback() throws Exception {
+		Connection conn = null;
+		try {
+			conn = getConnection();
+			conn.rollback();
+		} catch (Exception ex) {
+			throw new Exception(EnumGlobal.ERROR_DS_ROLLBACK.getAction()+ex);
+		} finally {
+			closeConnection(conn);
+		}
+	}
+
+	
+	public static void closeConnection(Connection conn) throws Exception{
+		try {
+			if(!conn.isClosed() || conn != null){
+				conn.close();
+			}
+		} catch (SQLException e) {
+			throw new Exception(EnumGlobal.ERROR.getAction()+e);
+		}
+	}
+}
+

@@ -1,0 +1,232 @@
+package com.coppel.singletonrslocal.configuracion;
+
+import java.util.List;
+import java.util.Map;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import org.w3c.dom.Node;
+import com.coppel.singletonrslocal.dto.BasicDataSourceConfig;
+import com.coppel.singletonrslocal.dto.Ecommerce;
+import com.coppel.singletonrslocal.dto.JKS;
+import com.coppel.singletonrslocal.dto.JksExacttarget;
+import com.coppel.singletonrslocal.dto.Proxy;
+import com.coppel.singletonrslocal.dto.xml.Clases;
+
+
+public class SingletonRSLocal  {
+
+
+	protected static     String wsExacttargetAuth;
+	  protected static    String wsExacttargetTriggerSended ;
+	  protected static    JksExacttarget exacttarget ;
+	  protected static    JKS jks;
+	  protected static    Ecommerce ecommerce;
+	  protected static    Proxy proxy;
+	  protected static    String proveedorCorreoExacttarget;
+	  protected static    String proveedorCorreoEmarsys;
+	  protected static    Conexion connCorreosEcommerceV2;
+	  protected static    String urlAPIEmarsys;
+	  protected static    String wSCoppelExacttarget;
+	  protected static   List<String> listaConexiones ;
+	  private static LecturaConexionBaseXML conexionBaseXML =null ;
+	  protected static  String dirXmlBase;
+	  protected static   String dirXmlCorreoBase;
+	  protected static   String nombreAplicacion;
+	  //protected static ThreadLocal<HashMap<String, BasicDataSource>> hsMapBasicDataSource = new ThreadLocal<>();
+	  protected static Map<String,BasicDataSourceConfig> hsMapBasicDataSource;
+	  
+	public static Map<String, BasicDataSourceConfig> getHsMapBasicDataSource() {
+		return hsMapBasicDataSource;
+	}
+
+	public static void setHsMapBasicDataSource(
+			Map<String, BasicDataSourceConfig> hsMapBasicDataSource) {
+		SingletonRSLocal.hsMapBasicDataSource = hsMapBasicDataSource;
+	}
+
+	public SingletonRSLocal(List<String> lstConexiones,String dirXmlBase, String dirXmlCorreoBase, String nombreAplicacion){
+		SingletonRSLocal.listaConexiones = lstConexiones;
+		SingletonRSLocal.dirXmlBase = dirXmlBase;
+		SingletonRSLocal.dirXmlCorreoBase = dirXmlCorreoBase;
+		SingletonRSLocal.nombreAplicacion = nombreAplicacion;
+	}
+   protected  static  SingletonRSLocal instance = null; 
+  public SingletonRSLocal getInstance() {
+	return SingletonRSLocal.instance;
+}
+
+public void setInstance(SingletonRSLocal instance) {
+	SingletonRSLocal.instance = instance;
+}
+
+public  String getWsExacttargetAuth() {
+	return wsExacttargetAuth;
+}
+
+public  void setWsExacttargetAuth(String wsExacttargetAuth) {
+	SingletonRSLocal.wsExacttargetAuth = wsExacttargetAuth;
+}
+
+public String getWsExacttargetTriggerSended() {
+	return wsExacttargetTriggerSended;
+}
+
+public void setWsExacttargetTriggerSended(
+		String wsExacttargetTriggerSended) {
+	SingletonRSLocal.wsExacttargetTriggerSended = wsExacttargetTriggerSended;
+}
+
+public  JksExacttarget getExacttarget() {
+	return exacttarget;
+}
+
+public  void setExacttarget(JksExacttarget exacttarget) {
+	SingletonRSLocal.exacttarget = exacttarget;
+}
+
+public  JKS getJks() {
+	return jks;
+}
+
+public  void setJks(JKS jks) {
+	SingletonRSLocal.jks = jks;
+}
+
+public static Ecommerce getEcommerce() {
+	return ecommerce;
+}
+
+public static void setEcommerce(Ecommerce ecommerce) {
+	SingletonRSLocal.ecommerce = ecommerce;
+}
+
+public static Proxy getProxy() {
+	return proxy;
+}
+
+public static void setProxy(Proxy proxy) {
+	SingletonRSLocal.proxy = proxy;
+}
+
+public static  String getProveedorCorreoExacttarget() {
+	return proveedorCorreoExacttarget;
+}
+
+public static void setProveedorCorreoExacttarget(
+		String proveedorCorreoExacttarget) {
+	SingletonRSLocal.proveedorCorreoExacttarget = proveedorCorreoExacttarget;
+}
+
+public  String getProveedorCorreoEmarsys() {
+	return proveedorCorreoEmarsys;
+}
+
+public static  void setProveedorCorreoEmarsys(String proveedorCorreoEmarsys) {
+	SingletonRSLocal.proveedorCorreoEmarsys = proveedorCorreoEmarsys;
+}
+
+public static Conexion getConnCorreosEcommerceV2() {
+	return connCorreosEcommerceV2;
+}
+
+public static void setConnCorreosEcommerceV2(Conexion connCorreosEcommerceV2) {
+	SingletonRSLocal.connCorreosEcommerceV2 = connCorreosEcommerceV2;
+}
+
+public static String getUrlAPIEmarsys() {
+	return urlAPIEmarsys;
+}
+
+public static void setUrlAPIEmarsys(String urlAPIEmarsys) {
+	SingletonRSLocal.urlAPIEmarsys = urlAPIEmarsys;
+}
+
+public static String getwSCoppelExacttarget() {
+	return wSCoppelExacttarget;
+}
+
+public static void setwSCoppelExacttarget(String wSCoppelExacttarget) {
+	SingletonRSLocal.wSCoppelExacttarget = wSCoppelExacttarget;
+}
+
+public static LecturaConexionBaseXML getConexionBaseXML() {
+	return conexionBaseXML;
+}
+
+public static void setConexionBaseXML(LecturaConexionBaseXML conexionBaseXML) {
+	SingletonRSLocal.conexionBaseXML = conexionBaseXML;
+}
+
+protected  SingletonRSLocal() throws Exception {
+    try {
+    	conexionBaseXML = new LecturaConexionBaseXML(dirXmlBase, dirXmlCorreoBase, nombreAplicacion);
+    	conexionBaseXML.getAllConexion();
+    	
+    	setWsExacttargetAuth(SingletonRSLocal.conexionBaseXML.getWsUrlConexion("wsExacttargetAuth"));
+    	setWsExacttargetTriggerSended(SingletonRSLocal.conexionBaseXML.getWsUrlConexion("wsExacttargetTriggerSended"));
+    	setUrlAPIEmarsys(SingletonRSLocal.conexionBaseXML.getWsUrlConexion("APIEmarsys"));
+
+        Node t = conexionBaseXML.getClass("JKS");
+        JAXBContext jc = JAXBContext.newInstance(Clases.class);
+        Unmarshaller unmarshaller = jc.createUnmarshaller();
+
+        Clases clases  = (Clases) unmarshaller.unmarshal(t);
+         
+        setExacttarget( clases.getExacttarget());
+        setJks(clases.getJks());
+        setEcommerce(clases.getEcommerce());
+        setProxy(clases.getProxy());
+        setProveedorCorreoExacttarget(clases.getProveedorCorreoExacttarget());
+        setProveedorCorreoEmarsys(clases.getProveedorCorreoEmarsys());
+        
+        /**
+        * Metodo para iniciar proceso de TxManager
+        */
+        setHsMapBasicDataSource(conexionBaseXML.getMapBasicDataSourceConfig(getListaConeciones(), getNombreAplicacion()));
+    } catch (Exception e) {
+    	throw new Exception(e);
+    }
+  }
+
+
+
+public static String getDirXmlBase() {
+	return dirXmlBase;
+}
+
+public static void setDirXmlBase(String dirXmlBase) {
+	SingletonRSLocal.dirXmlBase = dirXmlBase;
+}
+
+public static String getDirXmlCorreoBase() {
+	return SingletonRSLocal.dirXmlCorreoBase;
+}
+
+public static  void setDirXmlCorreoBase(String dirXmlCorreoBase) {
+	SingletonRSLocal.dirXmlCorreoBase = dirXmlCorreoBase;
+}
+
+public static String getNombreAplicacion() {
+	return SingletonRSLocal.nombreAplicacion;
+}
+
+public static void setNombreAplicacion(String nombreAplicacion) {
+	SingletonRSLocal.nombreAplicacion = nombreAplicacion;
+}
+
+public static SingletonRSLocal instance() throws Exception {
+    if (SingletonRSLocal.instance == null) {
+    	instance = new SingletonRSLocal();
+    }
+    return instance;
+  }
+  
+  @SuppressWarnings("-access")
+  public static void setConexiones(List<String> value){
+	  SingletonRSLocal.listaConexiones = value;
+  }
+
+	public static List<String> getListaConeciones() {
+		return SingletonRSLocal.listaConexiones;
+	}
+}

@@ -1,0 +1,65 @@
+package com.coppel.singletonrslocal.dto;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "conexion")
+public class ConexionXml {
+	private String servidor;
+	private String bd;
+	private String puerto;
+	private String usuario;
+	private String password;
+	private String tagXml;
+	private Integer timeOut;
+	@XmlElement (name = "host")
+	public String getServidor() {
+		return servidor;
+	}
+	public void setServidor(String servidor) {
+		this.servidor = servidor;
+	}
+	@XmlElement (name = "bd")
+	public String getBd() {
+		return bd;
+	}
+	public void setBd(String bd) {
+		this.bd = bd;
+	}
+	@XmlElement (name = "port")
+	public String getPuerto() {
+		return puerto;
+	}
+	public void setPuerto(String puerto) {
+		this.puerto = puerto;
+	}
+	@XmlElement (name = "user")
+	public String getUsuario() {
+		return usuario;
+	}
+	public void setUsuario(String usuario) {
+		this.usuario = usuario;
+	}
+	@XmlElement (name = "password")
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	@XmlAttribute (name = "name")	
+	public String getTagXml() {
+		return tagXml;
+	}
+	public void setTagXml(String value) {
+		this.tagXml = value;
+	}
+	@XmlElement (name = "timeout")
+	public Integer getTimeOut() {
+		return timeOut;
+	}
+	public void setTimeOut(Integer timeOut) {
+		this.timeOut = timeOut;
+	}
+}

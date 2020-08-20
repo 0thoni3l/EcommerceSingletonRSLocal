@@ -1,0 +1,31 @@
+package com.coppel.singletonrslocal.dto;
+
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType(propOrder={"isProxy","proxyHost", "proxyPort"})
+public class Proxy {
+  
+  private String proxyHost;
+  private String proxyPort;
+  private String isProxy;
+  
+  public String getProxyHost() {
+    return proxyHost;
+  }
+  public void setProxyHost(String proxyHost) {
+    this.proxyHost = proxyHost;
+  }
+  public String getProxyPort() {
+    return proxyPort;
+  }
+  public void setProxyPort(String proxyPort) {
+    this.proxyPort = proxyPort;
+  }
+  public String getIsProxy() {
+    return isProxy;
+  }
+  public void setIsProxy(String isProxy) {
+    this.isProxy = isProxy;
+  }
+
+}

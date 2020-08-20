@@ -1,0 +1,24 @@
+package com.coppel.singletonrslocal.dto;
+
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType(propOrder={"storeID", "langId"})
+public class Ecommerce {
+
+  private String storeID;
+  private String langId;
+  
+  public String getStoreID() {
+    return storeID;
+  }
+  public void setStoreID(String storeID) {
+    this.storeID = storeID;
+  }
+  public String getLangId() {
+    return langId;
+  }
+  public void setLangId(String langId) {
+    this.langId = langId;
+  }
+  
+}

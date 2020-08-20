@@ -1,0 +1,94 @@
+package com.coppel.singletonrslocal.dto.xml;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.coppel.singletonrslocal.dto.BasicDataSourceConfig;
+import com.coppel.singletonrslocal.dto.Ecommerce;
+import com.coppel.singletonrslocal.dto.JKS;
+import com.coppel.singletonrslocal.dto.JksExacttarget;
+import com.coppel.singletonrslocal.dto.Proxy;
+import com.coppel.singletonrslocal.dto.timeout.TimeOutServicio;
+
+@XmlRootElement
+public class Clases {
+
+	private TimeOutServicio timeout;
+	private BasicDataSourceConfig config;
+	
+	private JksExacttarget exacttarget;
+	@XmlElement (name = "exacttarget")
+	public JksExacttarget getExacttarget() {
+		return exacttarget;
+	}
+
+	public void setExacttarget(JksExacttarget exacttarget) {
+		this.exacttarget = exacttarget;
+	}
+	@XmlElement (name = "jks")
+	public JKS getJks() {
+		return jks;
+	}
+
+	public void setJks(JKS jks) {
+		this.jks = jks;
+	}
+	@XmlElement (name = "ecommerce")
+	public Ecommerce getEcommerce() {
+		return ecommerce;
+	}
+
+	public void setEcommerce(Ecommerce ecommerce) {
+		this.ecommerce = ecommerce;
+	}
+	@XmlElement (name = "proxy")
+	public Proxy getProxy() {
+		return proxy;
+	}
+
+	public void setProxy(Proxy proxy) {
+		this.proxy = proxy;
+	}
+	@XmlElement (name = "proveedorCorreoExacttarget")
+	public String getProveedorCorreoExacttarget() {
+		return proveedorCorreoExacttarget;
+	}
+
+	public void setProveedorCorreoExacttarget(String proveedorCorreoExacttarget) {
+		this.proveedorCorreoExacttarget = proveedorCorreoExacttarget;
+	}
+	@XmlElement (name = "proveedorCorreoEmarsys")
+	public String getProveedorCorreoEmarsys() {
+		return proveedorCorreoEmarsys;
+	}
+
+	public void setProveedorCorreoEmarsys(String proveedorCorreoEmarsys) {
+		this.proveedorCorreoEmarsys = proveedorCorreoEmarsys;
+	}
+
+	private  JKS jks;
+	private  Ecommerce ecommerce;
+	private  Proxy proxy;
+	private  String  proveedorCorreoExacttarget;
+	private  String  proveedorCorreoEmarsys;
+	@XmlElement (name = "BasicDataSource")
+	public BasicDataSourceConfig getConfig() {
+		return config;
+	}
+
+	public void setConfig(BasicDataSourceConfig config) {
+		this.config = config;
+	}
+
+	@XmlElement (name = "timeoutServicio")
+	public TimeOutServicio getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(TimeOutServicio timeout) {
+		this.timeout = timeout;
+	}
+	
+	
+
+}

@@ -1,0 +1,28 @@
+package com.coppel.singletonrslocal.txmanager.conf;
+
+import org.apache.commons.dbcp2.BasicDataSource;
+
+import com.coppel.singletonrslocal.dto.BasicDataSourceConfig;
+
+public class TxManagerConf {
+	public static BasicDataSource setConfTxManager(
+			BasicDataSourceConfig hBasicDataSourceConfig) {
+		BasicDataSource ds = new BasicDataSource();
+		ds.setDriverClassName(hBasicDataSourceConfig.getClassNameDriver());
+		ds.setUrl(hBasicDataSourceConfig.getUrlDriver());
+		ds.setUsername(hBasicDataSourceConfig.getUsernameDB());
+		ds.setPassword(hBasicDataSourceConfig.getPasswordDB());
+		ds.setDefaultQueryTimeout(Integer.valueOf(hBasicDataSourceConfig.getDefaultQueryTimeOut()));
+		ds.setMinIdle(Integer.valueOf(hBasicDataSourceConfig.getMinIdle()));
+		ds.setMaxIdle(Integer.valueOf(hBasicDataSourceConfig.getMaxIdle()));
+		ds.setMaxOpenPreparedStatements(Integer.valueOf(hBasicDataSourceConfig.getMaxOpenPreparedStatements()));	
+		ds.setMaxTotal(Integer.valueOf(hBasicDataSourceConfig.getMaxTotal()));
+		/*Configuracion especial para conexiones abandonadas*/
+		ds.setRemoveAbandonedOnBorrow(true);
+		ds.setTimeBetweenEvictionRunsMillis(6000);
+		ds.setLogAbandoned(true);
+		ds.setRemoveAbandonedOnMaintenance(true);
+		ds.setRemoveAbandonedTimeout(60);
+		return ds;
+	}
+}

@@ -1,0 +1,425 @@
+package com.coppel.singletonrslocal.configuracion;
+
+import java.io.File;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import sun.misc.BASE64Decoder;
+
+import com.coppel.singletonrslocal.dto.BasicDataSourceConfig;
+import com.coppel.singletonrslocal.dto.ConexionXml;
+import com.coppel.singletonrslocal.dto.Conexiones;
+import com.coppel.singletonrslocal.dto.xml.Clases;
+import com.coppel.singletonrslocal.enums.EnumGlobal;
+
+public class LecturaConexionBaseXML {
+
+	private static final String PATH_APACHETOMCAT = System.getProperty("catalina.base");
+	private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	private List<ConexionXml> lstCon = null;
+	private Base baseXml = new Base();
+	private String dirXmlBase ;
+	private String dirXmlCorreoBase ;
+	private String nombreAplicacion;
+	  public String getNombreAplicacion() {
+		return nombreAplicacion;
+	}
+
+
+	public void setNombreAplicacion(String nombreAplicacion) {
+		this.nombreAplicacion = nombreAplicacion;
+	}
+
+
+	public String getDirXmlBase() {
+		  if(dirXmlBase == null || dirXmlBase.equals("")){
+			  dirXmlBase = PATH_APACHETOMCAT + File.separator + "conf" + File.separator + "XML_BASE.xml";
+		  }
+		return dirXmlBase;
+	}
+
+
+	public void setDirXmlBase(String dirXmlBase) {
+		this.dirXmlBase = dirXmlBase;
+	}
+	public String getDirXmlCorreoBase() {
+		  if(dirXmlCorreoBase == null || dirXmlCorreoBase.equals("")){
+			  dirXmlCorreoBase = PATH_APACHETOMCAT + File.separator + "conf" + File.separator + "FormatoCorreos.xml";
+		  }
+		return dirXmlCorreoBase;
+	}
+
+
+	public void setDirXmlCorreoBase(String dirXmlCorreoBase) {
+		this.dirXmlCorreoBase = dirXmlCorreoBase;
+	}
+
+	public LecturaConexionBaseXML(){ }
+	public LecturaConexionBaseXML(String dirXmlBase, String dirXmlCorreoBase, String nombreAplicacion){
+		this.dirXmlBase = dirXmlBase;
+		this.dirXmlCorreoBase = dirXmlCorreoBase;
+		this.nombreAplicacion = nombreAplicacion;
+	}
+	/**
+	 * 
+	 * Obtiene la conexión a la que se desee de acuerdo al nombre de BD envíado
+	 * 
+	 * @param nameBD
+	 * @param conexion
+	 * @throws Exception
+	 */
+	public void getAllConexion(){
+		
+		try {
+			lstCon = getListConexion();
+		} catch (Exception e) {
+		}
+	}
+
+	/**
+	 * Obtiene la url de conexión del WS deseado
+	 * 
+	 * @param nameBD
+	 * @return String
+	 * @throws Exception
+	 */
+	public String getWsUrlConexion(String nameBD) throws Exception {
+		String url = "";
+
+		String pathTomcat = obtenerRutaXML();
+
+		File file = new File(pathTomcat);
+		boolean existe = false;
+		try {
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			if (file.exists()) {
+				Document doc = db.parse(file);
+				Element docEle = doc.getDocumentElement();
+				NodeList conexionList = docEle
+						.getElementsByTagName("websevice");
+				if (conexionList != null) {
+					for (int i = 0; i < conexionList.getLength(); i++) {
+						String name = conexionList.item(i).getAttributes()
+								.getNamedItem("name").getNodeValue();
+						Node node = conexionList.item(i);
+						if (name.equals(nameBD) && node.getNodeType() == Node.ELEMENT_NODE) {
+							
+								Element e = (Element) node;
+								NodeList nodeList = e
+										.getElementsByTagName("host");
+								url = nodeList.item(0).getChildNodes().item(0)
+										.getNodeValue();
+								existe = true;
+								break;
+							}
+					}
+					if (!existe) {
+						
+						throw new Exception("Error no existe un ws " + nameBD);
+					}
+				} else {
+					throw new Exception(EnumGlobal.ERROR_LECTURA_ARCHIVO_XML.getAction());
+				}
+			}
+		} catch (Exception e) {
+			
+			throw new Exception(EnumGlobal.ERROR_LECTURA_ARCHIVO_XML.getAction()+": " + e);
+		}
+		return url;
+	}
+
+	/**
+	 * obtiene el password ya desencryptado
+	 * 
+	 * @param textoEncriptado
+	 * @param secretKey
+	 * @return String
+	 * @throws Exception
+	 */
+	private String desencriptar(String textoEncriptado, String secretKey) throws Exception
+			 {
+		String base64EncryptedString = "";
+		try {
+			byte[] message = new BASE64Decoder().decodeBuffer(textoEncriptado);
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			byte[] digestOfPassword = md.digest(secretKey.getBytes("utf-8"));
+			byte[] keyBytes = Arrays.copyOf(digestOfPassword, 24);
+			SecretKey key = new SecretKeySpec(keyBytes, "DESede");
+			Cipher decipher = Cipher.getInstance("DESede");
+			decipher.init(Cipher.DECRYPT_MODE, key);
+			byte[] plainText = decipher.doFinal(message);
+			base64EncryptedString = new String(plainText, "UTF-8");
+		} catch (Exception ex) {
+			
+			throw new Exception("Error al desencryptar el password");
+		}
+		return base64EncryptedString;
+	}
+
+	/**
+	 * 
+	 * @return Node
+	 * @throws Exception
+	 */
+	public Node getCorreos(String nodeFile) throws Exception {
+		Node t = null;
+		String pathTomcat = getDirXmlCorreoBase();
+		File file = new File(pathTomcat);
+		try {
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			if (file.exists()) {
+				Document doc = db.parse(file);
+				Element docEle = doc.getDocumentElement();
+				NodeList conexionList = docEle.getElementsByTagName(nodeFile);
+				if (conexionList != null) {
+					for (int i = 0; i < conexionList.getLength(); i++) {
+						String name = conexionList.item(i).getAttributes()
+								.getNamedItem("name").getNodeValue();
+						Node node = conexionList.item(i);
+						if (name.equals(nodeFile) && node.getNodeType() == Node.ELEMENT_NODE) {
+							
+								t = node;
+								break;
+							
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			
+			throw new Exception(EnumGlobal.ERROR_LECTURA_ARCHIVO_XML.getAction()+": " + e);
+		}
+		return t;
+	}
+	
+
+
+
+	public Node getClass(String clase) throws Exception {
+		  String pathTomcat = obtenerRutaXML();
+		    Node t =null;
+		    File file = new File(pathTomcat);
+		    boolean existe = false;
+		    try {
+		    	DocumentBuilder db = dbf.newDocumentBuilder();
+		      if (file.exists()) {
+		        Document doc = db.parse(file);
+		        Element docEle = doc.getDocumentElement();
+		        NodeList conexionList = docEle.getElementsByTagName("clases");
+
+		        if (conexionList != null) {
+		          for (int i = 0; i < conexionList.getLength(); i++) {
+		            String name = conexionList.item(i).getAttributes().getNamedItem("name").getNodeValue();
+		            Node node = conexionList.item(i);
+		            if (name.equals(clase) && node.getNodeType() == Node.ELEMENT_NODE) {
+		                t = node;
+		                existe = true;
+		                break;
+		              
+		            }
+		          }
+		          
+		          if (!existe){
+		            throw new Exception("Error no existe una clase "+ clase);
+		          }
+		        }
+		        else{
+		          throw new Exception(EnumGlobal.ERROR_LECTURA_ARCHIVO_XML.getAction());
+		        }
+		      }
+		    } catch (Exception e) {
+		    	
+		    	throw new Exception(EnumGlobal.ERROR_LECTURA_ARCHIVO_XML.getAction()+": " + e);
+		    }
+		    return t;
+		  }
+
+	  public Node getConexion() throws Exception {
+		  String pathTomcat = obtenerRutaXML();
+		    File file = new File(pathTomcat);
+        	Node node=null;
+		    try {
+		    	DocumentBuilder db = dbf.newDocumentBuilder();
+		      if (file.exists()) {
+		        Document doc = db.parse(file);
+		        Element docEle = doc.getDocumentElement();
+		        
+		        NodeList conexionList = docEle.getElementsByTagName("Conexiones");
+
+		        for (int i = 0; i < conexionList.getLength(); i++) {
+					node = conexionList.item(i);
+				}
+		      }
+		    } catch (Exception e) {
+		 
+		    	throw new Exception(EnumGlobal.ERROR_LECTURA_ARCHIVO_XML.getAction()+": " + e);
+		    }
+		    return node;
+		  }
+	  
+	  public Conexion obtenerBD(String nameBd) throws Exception{
+		  Conexion con = new Conexion();
+		  try {
+				for (ConexionXml conexionXml : lstCon) {
+					if(conexionXml.getTagXml().equals(nameBd)){
+						con.setBd(conexionXml.getBd());
+						con.setPassword(desencriptar(conexionXml.getPassword(),nameBd));
+						con.setPuerto(conexionXml.getPuerto());
+						con.setUsuario(conexionXml.getUsuario());
+						con.setServidor(conexionXml.getServidor());
+						con.setTimeOut(conexionXml.getTimeOut());
+						con.setApp(getNombreAplicacion());
+						break;
+					}
+				}
+			} catch (Exception e) {
+				
+				throw new Exception(EnumGlobal.ERROR_LECTURA_ARCHIVO_XML.getAction()+": " + e);
+			}
+		  return con;
+	  }
+
+	  
+	  public List<ConexionXml> getListConexion() throws Exception  {
+			JAXBContext jc;
+			Unmarshaller unmarshaller;
+			Conexiones con;
+			try{   
+			  jc = JAXBContext.newInstance(Conexiones.class);
+			  unmarshaller = jc.createUnmarshaller();
+			  con = (Conexiones)unmarshaller.unmarshal(getConexion());
+			 
+			}catch(Exception e){
+				
+				throw new Exception(EnumGlobal.ERROR_LECTURA_ARCHIVO_XML.getAction()+": " + e);
+			}
+			 return con.getLstConexion();
+	  }
+	  
+	  public BasicDataSourceConfig basicDataSource() throws Exception {
+		  	Node t;
+		  	BasicDataSourceConfig configBasicDataSource = new BasicDataSourceConfig();
+			try {
+			      t = getClass("JKS");
+				  JAXBContext jc = JAXBContext.newInstance(Clases.class);
+				  Unmarshaller unmarshaller = jc.createUnmarshaller();
+			      Clases clases  = (Clases) unmarshaller.unmarshal(t);
+			      configBasicDataSource = clases.getConfig();
+			} catch (Exception e) {
+				throw new Exception(e);
+			}
+			return configBasicDataSource;
+	  } 
+
+	  public Map<String,BasicDataSourceConfig> getMapBasicDataSourceConfig(List<String> lstConexiones, String nombreAplicacionValue) throws Exception{
+		    
+		  HashMap<String,BasicDataSourceConfig> hBasicDataSourceConfig =new HashMap<>(); 
+		    
+		    for (String lConexiones : lstConexiones ) {
+		    	BasicDataSourceConfig basicDataSourceConfig = basicDataSource();
+		    	basicDataSourceConfig.setClassNameDriver(EnumGlobal.CLASSFORNAME.getAction());
+		    	/*Obtengo configuracion de la conexiones deseada*/
+		    	Conexion con = obtenerBD(lConexiones);
+				con.setApp(nombreAplicacionValue);
+				String urlConexion  = baseXml.getUrlConexionPostgres(con);
+				basicDataSourceConfig.setNombreConexion(lConexiones);
+				basicDataSourceConfig.setDefaultQueryTimeOut(con.getTimeOut().toString());
+				basicDataSourceConfig.setPasswordDB(con.getPassword());
+				basicDataSourceConfig.setUrlDriver(urlConexion);
+				basicDataSourceConfig.setUsernameDB(con.getUsuario());
+				hBasicDataSourceConfig.put(basicDataSourceConfig.getNombreConexion() ,basicDataSourceConfig);
+				
+			}
+		    return hBasicDataSourceConfig;
+	  } 
+	  public Map<String,BasicDataSourceConfig> getMapBasicDataSourceConfigBg(List<String> lstConexiones, String nombreAplicacionValue) throws Exception{
+		    
+		  HashMap<String,BasicDataSourceConfig> hBasicDataSourceConfig =new HashMap<>(); 
+		    
+		    for (String lConexiones : lstConexiones ) {
+		    	BasicDataSourceConfig basicDataSourceConfig = basicDataSource();
+		    	basicDataSourceConfig.setClassNameDriver(EnumGlobal.CLASSFORNAME.getAction());
+		    	/*Obtengo configuracion de la conexiones deseada*/
+		    	Conexion con = obtenerBD(lConexiones);
+				con.setApp(nombreAplicacionValue);
+				String urlConexion  = baseXml.getUrlConexionPostgresBg(con);
+				basicDataSourceConfig.setNombreConexion(lConexiones);
+				basicDataSourceConfig.setDefaultQueryTimeOut(con.getTimeOut().toString());
+				basicDataSourceConfig.setPasswordDB(con.getPassword());
+				basicDataSourceConfig.setUrlDriver(urlConexion);
+				basicDataSourceConfig.setUsernameDB(con.getUsuario());
+				hBasicDataSourceConfig.put(basicDataSourceConfig.getNombreConexion() ,basicDataSourceConfig);
+				
+			}
+		    return hBasicDataSourceConfig;
+	  }
+	  public List<BasicDataSourceConfig> getListBasicDataSourceConfig(List<String> lstConexiones, String nombreAplicacionValue, boolean tienePgBouncer) throws Exception{
+		    
+		  List<BasicDataSourceConfig> hBasicDataSourceConfig =new ArrayList<>(); 
+		  String urlConexion = null;
+		    for (String lConexiones : lstConexiones ) {
+		    	BasicDataSourceConfig basicDataSourceConfig = basicDataSource();
+		    	basicDataSourceConfig.setClassNameDriver(EnumGlobal.CLASSFORNAME.getAction());
+		    	/*Obtengo configuracion de la conexiones deseada*/
+		    	Conexion con = obtenerBD(lConexiones);
+				con.setApp(nombreAplicacionValue);
+				if(tienePgBouncer){
+					urlConexion   = baseXml.getUrlConexionPostgresBg(con);
+				}else{
+					urlConexion  = baseXml.getUrlConexionPostgres(con);
+				}
+				
+				basicDataSourceConfig.setNombreConexion(lConexiones);
+				basicDataSourceConfig.setDefaultQueryTimeOut(con.getTimeOut().toString());
+				basicDataSourceConfig.setPasswordDB(con.getPassword());
+				basicDataSourceConfig.setUrlDriver(urlConexion);
+				basicDataSourceConfig.setUsernameDB(con.getUsuario());
+				hBasicDataSourceConfig.add(basicDataSourceConfig);
+
+				
+			}
+		    return hBasicDataSourceConfig;
+	  }
+	  public List<BasicDataSourceConfig> getListBasicDataSourceConfigDb2(List<String> lstConexiones, String nombreAplicacionValue) throws Exception{
+		    
+		  List<BasicDataSourceConfig> hBasicDataSourceConfig =new ArrayList<>(); 
+		  String urlConexion = null;
+		    for (String lConexiones : lstConexiones ) {
+		    	BasicDataSourceConfig basicDataSourceConfig = basicDataSource();
+		    	basicDataSourceConfig.setClassNameDriver(EnumGlobal.CLASSFORNAMEDB2.getAction());
+		    	/*Obtengo configuracion de la conexiones deseada*/
+		    	Conexion con = obtenerBD(lConexiones);
+				con.setApp(nombreAplicacionValue);
+
+				urlConexion  = baseXml.getUrlConexionDb2(con);
+				basicDataSourceConfig.setNombreConexion(lConexiones);
+				basicDataSourceConfig.setDefaultQueryTimeOut(con.getTimeOut().toString());
+				basicDataSourceConfig.setPasswordDB(con.getPassword());
+				basicDataSourceConfig.setUrlDriver(urlConexion);
+				basicDataSourceConfig.setUsernameDB(con.getUsuario());
+				hBasicDataSourceConfig.add(basicDataSourceConfig);				
+			}
+		    return hBasicDataSourceConfig;
+	  }
+	  
+	  private final String obtenerRutaXML(){
+		  return getDirXmlBase();
+	  }
+}

@@ -1,0 +1,37 @@
+package com.coppel.singletonrslocal.dto.xml;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.coppel.singletonrslocal.dto.BasicDataSourceConfig;
+
+import com.coppel.singletonrslocal.dto.timeout.TimeOutServicio;
+
+@XmlRootElement
+public class Clases {
+
+	private TimeOutServicio timeout;
+	private BasicDataSourceConfig config;
+	
+	
+	@XmlElement (name = "BasicDataSource")
+	public BasicDataSourceConfig getConfig() {
+		return config;
+	}
+
+	public void setConfig(BasicDataSourceConfig config) {
+		this.config = config;
+	}
+
+	@XmlElement (name = "timeoutServicio")
+	public TimeOutServicio getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(TimeOutServicio timeout) {
+		this.timeout = timeout;
+	}
+	
+	
+
+}

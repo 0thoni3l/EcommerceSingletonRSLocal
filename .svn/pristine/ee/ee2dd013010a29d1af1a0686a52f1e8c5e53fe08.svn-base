@@ -1,0 +1,33 @@
+package com.coppel.singletonrslocal.dto.timeout;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "correos")
+public class TimeOutServicio {
+
+	private Ccuenta cCuenta;
+	private MemberService memberService;
+	private StrikeIron strinkeIron;
+	@XmlElement (name = "ccuenta")
+	public Ccuenta getcCuenta() {
+		return cCuenta;
+	}
+	public void setcCuenta(Ccuenta cCuenta) {
+		this.cCuenta = cCuenta;
+	}
+	@XmlElement (name = "memberService")
+	public MemberService getMemberService() {
+		return memberService;
+	}
+	public void setMemberService(MemberService memberService) {
+		this.memberService = memberService;
+	}
+	@XmlElement (name = "strikeIron")
+	public StrikeIron getStrinkeIron() {
+		return strinkeIron;
+	}
+	public void setStrinkeIron(StrikeIron strinkeIron) {
+		this.strinkeIron = strinkeIron;
+	}
+}

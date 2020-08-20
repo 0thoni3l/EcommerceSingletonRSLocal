@@ -1,0 +1,24 @@
+package com.coppel.singletonrslocal.dto.timeout;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "ccuenta")
+public class Ccuenta {
+	private String timeout;
+	private String readTimeout;
+	@XmlElement (name = "timeout")
+	public String getTimeout() {
+		return timeout;
+	}
+	public void setTimeout(String timeout) {
+		this.timeout = timeout;
+	}
+	@XmlElement (name = "readTimeout")
+	public String getReadTimeout() {
+		return readTimeout;
+	}
+	public void setReadTimeout(String readTimeout) {
+		this.readTimeout = readTimeout;
+	}
+}

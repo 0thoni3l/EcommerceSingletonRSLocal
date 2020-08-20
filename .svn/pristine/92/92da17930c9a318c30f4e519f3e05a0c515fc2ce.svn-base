@@ -1,0 +1,55 @@
+package com.coppel.singletonrslocal.configuracion;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+
+import com.coppel.singletonrslocal.enums.MessageCode;
+
+public class Base {
+
+	/**
+	 * 
+	 * genera la url de conexión a base de datos postgres
+	 * 
+	 * @param dataConnection
+	 * @return String
+	 */
+	public String getUrlConexionPostgres(Conexion dataConnection) {
+		return "jdbc:postgresql://" + dataConnection.getServidor() + ":"
+				+ dataConnection.getPuerto() + "/" + dataConnection.getBd()
+				+ "?ApplicationName=" + dataConnection.getApp();
+	}
+	
+	public void destruirVariablesDAO(ResultSet rSet,CallableStatement callableStatement) throws Exception {
+		try {
+			if(rSet !=null){
+				rSet.close();
+			}
+			if(callableStatement!=null){
+				callableStatement.close();
+			}
+		} catch (SQLException e) {
+			throw new Exception(e);
+		}
+	}
+	
+	public void destruirVariablesDAO(Connection con,ResultSet rSet,CallableStatement callableStatement) throws Exception {
+		try {
+			if(con!=null){
+				con.close();
+			}
+			if(rSet !=null){
+				rSet.close();
+			}
+			if(callableStatement!=null){
+				callableStatement.close();
+			}
+		} catch (SQLException e) {
+			throw new Exception(e);
+		}
+	}
+
+}

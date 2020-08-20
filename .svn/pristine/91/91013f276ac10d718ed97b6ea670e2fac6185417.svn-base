@@ -1,0 +1,106 @@
+package com.coppel.singletonrslocal.dto;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+
+
+@XmlRootElement
+public class Clases {
+  
+  JksExacttarget exacttarget;
+  JKS jks;
+  Ecommerce ecommerce;
+  Proxy proxy;
+  String  proveedorCorreoExacttarget;
+  String  proveedorCorreoEmarsys;
+  private BasicDataSourceConfig config;
+	@XmlElement (name = "BasicDataSource")
+	public BasicDataSourceConfig getConfig() {
+		return config;
+	}
+
+	public void setConfig(BasicDataSourceConfig config) {
+		this.config = config;
+	}
+
+//  JksEmarsys emarsys;
+
+  @XmlElement (name = "exacttarget")
+  public JksExacttarget getExacttarget() {
+    return exacttarget;
+  }
+
+  public void setExacttarget(JksExacttarget exacttarget) {
+    this.exacttarget = exacttarget;
+  }
+  
+  @XmlElement (name = "jks")
+  public JKS getJKS(){
+    return jks;
+  }
+  
+  public void setJKS(JKS jks) {
+    this.jks = jks;
+  }
+
+  @XmlElement (name = "ecommerce")
+  public Ecommerce getEcommerce() {
+    return ecommerce;
+  }
+
+  public void setEcommerce(Ecommerce ecommerce) {
+    this.ecommerce = ecommerce;
+  }
+
+  @XmlElement (name = "proxy")
+  public Proxy getProxy() {
+    return proxy;
+  }
+
+  public void setProxy(Proxy proxy) {
+    this.proxy = proxy;
+  }
+
+  @XmlElement (name = "proveedorCorreoExacttarget")
+public String getProveedorCorreoExacttarget() {
+	return proveedorCorreoExacttarget;
+}
+
+/**
+ * @param proveedorCorreoActivo the provedorCorreoActivo to set
+ */
+public void setProveedorCorreoExacttarget(String proveedorCorreoExacttarget) {
+	this.proveedorCorreoExacttarget = proveedorCorreoExacttarget;
+}
+
+/**
+ * @return the proveedorCorreoEmarsys
+ */
+@XmlElement (name = "proveedorCorreoEmarsys")
+public String getProveedorCorreoEmarsys() {
+	return proveedorCorreoEmarsys;
+}
+
+/**
+ * @param proveedorCorreoEmarsys the proveedorCorreoEmarsys to set
+ */
+public void setProveedorCorreoEmarsys(String proveedorCorreoEmarsys) {
+	this.proveedorCorreoEmarsys = proveedorCorreoEmarsys;
+}
+
+/**
+ * @return the emarsys
+ */
+//@XmlElement (name = "emarsys")
+//public JksEmarsys getEmarsys() {
+//	return emarsys;
+//}
+//
+///**
+// * @param emarsys the emarsys to set
+// */
+//public void setEmarsys(JksEmarsys emarsys) {
+//	this.emarsys = emarsys;
+//}
+
+}
