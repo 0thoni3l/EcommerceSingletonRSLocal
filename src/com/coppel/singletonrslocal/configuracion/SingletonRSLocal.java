@@ -11,7 +11,7 @@ public class SingletonRSLocal  {
 
 	  protected static    List<String> listaConexiones =new ArrayList<String>();
 	  protected static 	  List<String> lstConexionesPgBouncer =new ArrayList<String>();
-
+	  private static LecturaConexionBaseXML conexionBaseXML =null ;
 	  protected static  String dirXmlBase;
 	  protected static   String dirXmlCorreoBase;
 	  protected static   String nombreAplicacion;
@@ -84,9 +84,19 @@ public void setInstance(SingletonRSLocal instance) {
 	SingletonRSLocal.instance = instance;
 }
 
+
+
+public static LecturaConexionBaseXML getConexionBaseXML() {
+	return conexionBaseXML;
+}
+
+public static void setConexionBaseXML(LecturaConexionBaseXML conexionBaseXML) {
+	SingletonRSLocal.conexionBaseXML = conexionBaseXML;
+}
+
 protected  SingletonRSLocal() throws Exception {
     try {
-    	LecturaConexionBaseXML conexionBaseXML = new LecturaConexionBaseXML(dirXmlBase, dirXmlCorreoBase, nombreAplicacion);
+    	conexionBaseXML = new LecturaConexionBaseXML(dirXmlBase, dirXmlCorreoBase, nombreAplicacion);
 
         if( !getlServicios().isEmpty() ){
         	setlWServicios(conexionBaseXML.getWebServices(getlServicios()));
